@@ -54,7 +54,14 @@ public class SalesmanGenome implements Comparable{
 
     @Override
     public int compareTo(Object o) {
-        return 0;
+        SalesmanGenome genome = (SalesmanGenome) o;
+
+        if(this.fitness > genome.getFitness())
+            return 1;
+        else if(this.fitness < genome.getFitness())
+            return -1;
+        else
+            return 0;
     }
 
     public List<Integer> getCitiesOrder() {
