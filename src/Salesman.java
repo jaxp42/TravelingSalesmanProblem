@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Random;
 
 public class Salesman {
+    private Random random = new Random();
     private int pupulationSize,
             numberOfCities,
             reproductionSize,
@@ -37,7 +38,6 @@ public class Salesman {
     }
 
     private SalesmanGenome rouletteSelection(List<SalesmanGenome> population){
-        Random random = new Random();
         SalesmanGenome selectedGenome = null;
         int totalFitness = population.stream().map(SalesmanGenome::getFitness).mapToInt(Integer::intValue).sum();
         int selectedValue = random.nextInt(totalFitness);
@@ -62,6 +62,31 @@ public class Salesman {
     private SalesmanGenome tournamentSelection(List<SalesmanGenome> population){
         List<SalesmanGenome> selectedGenomes = SelectionUtils.getNRandomGenomes(population, tournamentSize);
         return Collections.min(selectedGenomes);
+    }
+
+    public List<SalesmanGenome> crossover(List<SalesmanGenome> parents){
+        List<SalesmanGenome> descendants = new ArrayList<>();
+        int genomeSize = numberOfCities - 1;
+        int crossoverPoint = random.nextInt(genomeSize);
+
+        List<Integer> parent1CitiesOrder = parents.get(0).getCitiesOrder();
+        List<Integer> parent2CitiesOrder = parents.get(1).getCitiesOrder();
+
+        for(int i=0; i<crossoverPoint; i++) {
+            int changedCity = parent2CitiesOrder.get(i);
+            Collections.swap(parents.get(0).getCitiesOrder(), parents.get(0).getCitiesOrder().indexOf(changedCity), i);
+        }
+        descendants.add(new SalesmanGenome(parents.get(0)));
+        parents.get(0).setCitiesOrder(parent1CitiesOrder);
+
+        for(int i=crossoverPoint; i<genomeSize; i++) {
+            int changedCity = parent1CitiesOrder.get(i);
+            Collections.swap(parents.get(1).getCitiesOrder(), parents.get(1).getCitiesOrder().indexOf(changedCity), i);
+        }
+        descendants.add(new SalesmanGenome(parents.get(1)));
+        parents.get(1).setCitiesOrder(parent2CitiesOrder);
+
+        return descendants;
     }
 
     public int getPupulationSize() {
