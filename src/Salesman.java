@@ -5,15 +5,15 @@ import java.util.Random;
 
 public class Salesman {
     private Random random = new Random();
-    private int pupulationSize,
+    private int populationSize,
             numberOfCities,
             reproductionSize,
-            maxGenerations,
             mutationRate,
+            maxGenerations,
             startingCity,
             minFitness,
             tournamentSize;
-    private int[][] travelPrices[];
+    private int[][] travelPrices;
     private SelectionType selectionType;
 
 
@@ -52,7 +52,7 @@ public class Salesman {
         }
 
         if(selectedGenome == null){
-            int selectRandom = random.nextInt(getPupulationSize());
+            int selectRandom = random.nextInt(getPopulationSize());
             selectedGenome = population.get(selectRandom);
         }
 
@@ -89,12 +89,52 @@ public class Salesman {
         return descendants;
     }
 
-    public int getPupulationSize() {
-        return pupulationSize;
+    public SalesmanGenome mutate(SalesmanGenome genome){
+        float randomNumber = random.nextFloat();
+        int genomeSize = numberOfCities - 1;
+
+        if(randomNumber < mutationRate){
+            Collections.swap(genome.getCitiesOrder(), random.nextInt(genomeSize), random.nextInt(genomeSize));
+        }
+
+        return genome;
     }
 
-    public void setPupulationSize(int pupulationSize) {
-        this.pupulationSize = pupulationSize;
+    public List<SalesmanGenome> createGeneration(List<SalesmanGenome> population){
+        List<SalesmanGenome> newGeneration = new ArrayList<>();
+        int generationSize = numberOfCities - 1;
+        int currentGenerationSize = 0;
+
+        while(currentGenerationSize < generationSize){
+            List<SalesmanGenome> parents = SelectionUtils.getNRandomGenomes(population, 2);
+            List<SalesmanGenome> children = crossover(parents);
+
+            children.set(0, mutate(children.get(0)));
+            children.set(1, mutate(children.get(1)));
+            newGeneration.addAll(children);
+            currentGenerationSize += 2;
+        }
+
+        return newGeneration;
+    }
+
+
+
+    private List<SalesmanGenome> createInitialPopulation(){
+        List<SalesmanGenome> initialPopulation = new ArrayList<>();
+        for(int i = 0; i < populationSize; i++){
+            initialPopulation.add(new SalesmanGenome(numberOfCities, travelPrices, startingCity));
+        }
+
+        return initialPopulation;
+    }
+
+    public int getPopulationSize() {
+        return populationSize;
+    }
+
+    public void setPopulationSize(int populationSize) {
+        this.populationSize = populationSize;
     }
 
     public int getNumberOfCities() {
@@ -153,11 +193,11 @@ public class Salesman {
         this.tournamentSize = tournamentSize;
     }
 
-    public int[][][] getTravelPrices() {
+    public int[][] getTravelPrices() {
         return travelPrices;
     }
 
-    public void setTravelPrices(int[][][] travelPrices) {
+    public void setTravelPrices(int[][] travelPrices) {
         this.travelPrices = travelPrices;
     }
 
