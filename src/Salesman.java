@@ -12,14 +12,14 @@ public class Salesman {
             maxGenerations,
             startingCity,
             minFitness,
-            tournamentSize;
+            tournamentSize,
+            maxIterations;
     private int[][] travelPrices;
     private SelectionType selectionType;
 
-
     public Salesman(){}
 
-    public List<SalesmanGenome> runSelection(List<SalesmanGenome> population, SelectionType selectionType){
+    public List<SalesmanGenome> runSelection(List<SalesmanGenome> population){
         List<SalesmanGenome> selectedPopulation = new ArrayList<>();
         SalesmanGenome selectedGenome;
 
@@ -118,8 +118,6 @@ public class Salesman {
         return newGeneration;
     }
 
-
-
     private List<SalesmanGenome> createInitialPopulation(){
         List<SalesmanGenome> initialPopulation = new ArrayList<>();
         for(int i = 0; i < populationSize; i++){
@@ -127,6 +125,23 @@ public class Salesman {
         }
 
         return initialPopulation;
+    }
+
+    public SalesmanGenome optimize(){
+        List<SalesmanGenome> population = createInitialPopulation();
+        SalesmanGenome bestGenome = population.get(0);
+
+        for(int i = 0; i < maxIterations; i++){
+            List<SalesmanGenome> selectedPopulation = runSelection(population);
+            population = createGeneration(selectedPopulation);
+            bestGenome = Collections.min(population);
+
+            if(bestGenome.getFitness() <= minFitness){
+                break;
+            }
+        }
+
+        return bestGenome;
     }
 
     public int getPopulationSize() {
@@ -207,5 +222,13 @@ public class Salesman {
 
     public void setSelectionType(SelectionType selectionType) {
         this.selectionType = selectionType;
+    }
+
+    public int getMaxIterations() {
+        return maxIterations;
+    }
+
+    public void setMaxIterations(int maxIterations) {
+        this.maxIterations = maxIterations;
     }
 }
